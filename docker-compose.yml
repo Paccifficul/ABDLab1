@@ -1,0 +1,19 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: abd_lab1_postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: secret
+      POSTGRES_DB: abd_lab1
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
+      - ./ddl.sql:/docker-entrypoint-initdb.d/02-ddl.sql:ro
+      - ./dml.sql:/docker-entrypoint-initdb.d/03-dml.sql:ro
+      - ./исходные данные:/csv:ro
+
+volumes:
+  pgdata:
