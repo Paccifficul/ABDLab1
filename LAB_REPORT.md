@@ -49,7 +49,7 @@ docker compose up -d
 
 - host: `localhost`
 - port: `5432`
-- database: `lab1`
+- database: `abd_lab1`
 - user: `pipipupu`
 - password: `check`
 

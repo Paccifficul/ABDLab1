@@ -1,13 +1,13 @@
 services:
   postgres:
-    image: postgres:16
+    image: postgres:17
     container_name: abd_lab1_postgres
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: secret
+      POSTGRES_USER: pipipupu # данные измененены
+      POSTGRES_PASSWORD: check # данные измененены
       POSTGRES_DB: abd_lab1
     ports:
-      - "5432:5432"
+      - "5656:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
       - ./init.sql:/docker-entrypoint-initdb.d/01-init.sql:ro

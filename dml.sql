@@ -141,16 +141,20 @@ SELECT DISTINCT ON (m.customer_email)
     m.customer_last_name,
     m.customer_age,
     m.customer_email,
-    l.location_id,
+    (
+        SELECT l.location_id
+        FROM dim_location l
+        JOIN dim_country c ON c.country_id = l.country_id
+        WHERE c.country_name = m.customer_country
+          AND l.city_id IS NULL
+          AND COALESCE(l.postal_code, '') = COALESCE(m.customer_postal_code, '')
+          AND l.address IS NULL
+        ORDER BY l.location_id
+        LIMIT 1
+    ) AS location_id,
     p.pet_id,
     m.customer_pet_name
 FROM mock_data m
-JOIN dim_country c ON c.country_name = m.customer_country
-JOIN dim_location l
-    ON l.country_id = c.country_id
-    AND l.city_id IS NULL
-    AND COALESCE(l.postal_code, '') = COALESCE(m.customer_postal_code, '')
-    AND l.address IS NULL
 JOIN dim_pet_type pt ON pt.pet_type_name = m.customer_pet_type
 JOIN dim_pet_breed pb ON pb.pet_breed_name = m.customer_pet_breed
 JOIN dim_pet p
@@ -171,14 +175,18 @@ SELECT DISTINCT ON (m.seller_email)
     m.seller_first_name,
     m.seller_last_name,
     m.seller_email,
-    l.location_id
+    (
+        SELECT l.location_id
+        FROM dim_location l
+        JOIN dim_country c ON c.country_id = l.country_id
+        WHERE c.country_name = m.seller_country
+          AND l.city_id IS NULL
+          AND COALESCE(l.postal_code, '') = COALESCE(m.seller_postal_code, '')
+          AND l.address IS NULL
+        ORDER BY l.location_id
+        LIMIT 1
+    ) AS location_id
 FROM mock_data m
-JOIN dim_country c ON c.country_name = m.seller_country
-JOIN dim_location l
-    ON l.country_id = c.country_id
-    AND l.city_id IS NULL
-    AND COALESCE(l.postal_code, '') = COALESCE(m.seller_postal_code, '')
-    AND l.address IS NULL
 WHERE m.seller_email IS NOT NULL
 ORDER BY m.seller_email, m.id;
 
@@ -251,17 +259,22 @@ SELECT DISTINCT ON (m.supplier_name, m.supplier_email)
     m.supplier_contact,
     m.supplier_email,
     m.supplier_phone,
-    l.location_id
+    (
+        SELECT l.location_id
+        FROM dim_location l
+        JOIN dim_city ci
+            ON ci.city_id = l.city_id
+            AND ci.city_name = m.supplier_city
+            AND ci.state_name IS NULL
+        JOIN dim_country c
+            ON c.country_id = l.country_id
+            AND c.country_name = m.supplier_country
+        WHERE l.postal_code IS NULL
+          AND COALESCE(l.address, '') = COALESCE(m.supplier_address, '')
+        ORDER BY l.location_id
+        LIMIT 1
+    ) AS location_id
 FROM mock_data m
-JOIN dim_city ci
-    ON ci.city_name = m.supplier_city
-    AND ci.state_name IS NULL
-JOIN dim_country c ON c.country_name = m.supplier_country
-JOIN dim_location l
-    ON l.city_id = ci.city_id
-    AND l.country_id = c.country_id
-    AND l.postal_code IS NULL
-    AND COALESCE(l.address, '') = COALESCE(m.supplier_address, '')
 WHERE m.supplier_name IS NOT NULL
 ORDER BY m.supplier_name, m.supplier_email, m.id;
 
